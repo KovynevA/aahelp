@@ -27,11 +27,20 @@ class MyApp extends StatelessWidget {
             padding: EdgeInsets.zero,
             children: <Widget>[
               SizedBox(
-                height: MediaQuery.of(context).size.height * 0.13,
-                child: const DrawerHeader(
+                height: MediaQuery.of(context).size.height * 0.15,
+                child: DrawerHeader(
                   curve: Curves.decelerate,
                   decoration: BoxDecoration(color: Colors.lightBlueAccent),
-                  child: Text('Меню', style: AppTextStyle.menutextstyle),
+                  child: Card(
+                    color: Colors.lightBlueAccent,
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Center(
+                      child: Text('Меню', style: AppTextStyle.menutextstyle),
+                    ),
+                  ),
                 ),
               ),
               const TabBarPage(tabWidget: FindGroup(title: 'Найти группу')),

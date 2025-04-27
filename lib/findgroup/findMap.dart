@@ -242,8 +242,9 @@ class _MapWidgetState extends State<FindMapWidget> {
         }
       }
       return foundGroup;
-    } else
+    } else {
       return null;
+    }
   }
 
   @override
@@ -628,8 +629,7 @@ class ExpandableFab extends StatefulWidget {
   final List<SearchCriteria> searchCriteria;
   final Function(SearchCriteria) onSelected;
   const ExpandableFab(
-      {Key? key, required this.searchCriteria, required this.onSelected})
-      : super(key: key);
+      {super.key, required this.searchCriteria, required this.onSelected});
 
   @override
   _ExpandableFabState createState() => _ExpandableFabState();
@@ -688,7 +688,7 @@ class _ExpandableFabState extends State<ExpandableFab>
         children: [
           _criteria == null
               ? Text('Поиск')
-              : Text('${criteriaToString(_criteria!)}'),
+              : Text(criteriaToString(_criteria!)),
           Icon(Icons.search),
         ],
       ),

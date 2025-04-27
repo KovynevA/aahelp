@@ -115,7 +115,7 @@ Future<Map<String, String>> loadAsset() async {
     String data = await rootBundle.loadString('assets/txt/diary.html');
     return parseHtmlForToday(data);
   } catch (e) {
-    print('Error loading file: $e');
+    debugPrint('Error loading file: $e');
     return {'header': '', 'body': 'Ошибка загрузки файла'};
   }
 }

@@ -25,24 +25,32 @@ class TabBarPage extends StatelessWidget {
           .title; // Получаем параметр title из виджета FindGroup
     }
 
-    return ListTile(
-      title: Text(
-        title,
-        style: AppTextStyle.valuesstyle,
+    return Card(
+      color: AppColor.backgroundColor,
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
       ),
-      onTap: () {
-        Navigator.pop(context);
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => tabWidget,
+      child: ListTile(
+        title: Center(
+          child: Text(
+            title,
+            style: AppTextStyle.valuesstyle,
           ),
-        );
-      },
+        ),
+        onTap: () {
+          Navigator.pop(context);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => tabWidget,
+            ),
+          );
+        },
+      ),
     );
   }
 }
-
 
 // Сравнение дат без времени
 bool compareDate(DateTime date1, DateTime date2) {
@@ -73,7 +81,6 @@ void infoSnackBar(BuildContext context, String text) {
 
   ScaffoldMessenger.of(context).showSnackBar(snackBar);
 }
-
 
 ///////******* Класс поиска и фильтрации по группам ********/////////////
 

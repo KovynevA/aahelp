@@ -318,7 +318,7 @@ abstract class Decor {
 class MultilineDropdownMenuItem<T> extends DropdownMenuItem<T> {
   final String text;
 
-  MultilineDropdownMenuItem({
+  MultilineDropdownMenuItem({super.key, 
     required T value,
     required this.text,
   }) : super(
@@ -342,7 +342,7 @@ class TextAndIconRowWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: MediaQuery.of(context).size.width * 0.98,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -353,7 +353,7 @@ class TextAndIconRowWidget extends StatelessWidget {
           ),
           Expanded(
             child: Text(
-              '$text',
+              text,
               style: AppTextStyle.valuesstyle,
               softWrap: true,
             ),

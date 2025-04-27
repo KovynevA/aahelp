@@ -3,7 +3,6 @@ import 'package:aahelp/helper/utils.dart';
 import 'package:aahelp/findgroup/findMap.dart';
 import 'package:flutter/material.dart';
 
-
 class FindGroup extends StatefulWidget {
   final String title;
 
@@ -56,7 +55,10 @@ class _FindGroupState extends State<FindGroup> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(widget.title),
+            Text(
+              widget.title,
+              style: AppTextStyle.valuesstyle,
+            ),
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
