@@ -31,7 +31,7 @@ class TabBarPage extends StatelessWidget {
     }
 
     return Card(
-      color: AppColor.backgroundColor,
+      color: AppColor.cardColor,
       elevation: 4,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
@@ -501,12 +501,11 @@ class SobrietyDuration {
   final int months;
   final int days;
   final int totalDays;
-  
+
   SobrietyDuration({
     this.years = 0,
     this.months = 0,
     this.days = 0,
     this.totalDays = 0,
   });
- 
 }
