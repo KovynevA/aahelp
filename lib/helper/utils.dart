@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:aahelp/diary/diaryhtml.dart';
 import 'package:aahelp/findgroup/findgroup.dart';
 import 'package:aahelp/helper/stylemenu.dart';
+import 'package:aahelp/mysobriety/mysobriety.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -22,6 +23,10 @@ class TabBarPage extends StatelessWidget {
     }
     if (tabWidget is Diary) {
       title = (tabWidget as Diary)
+          .title; // Получаем параметр title из виджета FindGroup
+    }
+    if (tabWidget is MySobriety) {
+      title = (tabWidget as MySobriety)
           .title; // Получаем параметр title из виджета FindGroup
     }
 
@@ -489,4 +494,19 @@ class Phone {
     data['info'] = info;
     return data;
   }
+}
+
+class SobrietyDuration {
+  final int years;
+  final int months;
+  final int days;
+  final int totalDays;
+  
+  SobrietyDuration({
+    this.years = 0,
+    this.months = 0,
+    this.days = 0,
+    this.totalDays = 0,
+  });
+ 
 }

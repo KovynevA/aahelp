@@ -2,7 +2,9 @@ import 'package:aahelp/diary/diaryhtml.dart';
 import 'package:aahelp/findgroup/findgroup.dart';
 import 'package:aahelp/helper/stylemenu.dart';
 import 'package:aahelp/helper/utils.dart';
+import 'package:aahelp/mysobriety/mysobriety.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -16,6 +18,16 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      localizationsDelegates: const [
+    GlobalMaterialLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+  ],
+  supportedLocales: const [
+    Locale('ru', 'RU'),  // Русский язык
+  ],
+  locale: const Locale('ru', 'RU'),  
+
       debugShowCheckedModeBanner: false,
       home: HomePage(), // Выносим основной контент в отдельный виджет
     );
@@ -135,6 +147,8 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const TabBarPage(tabWidget: FindGroup(title: 'Найти группу')),
                   const TabBarPage(tabWidget: Diary(title: 'Ежедневник')),
+                  const TabBarPage(
+                      tabWidget: MySobriety(title: 'Моя трезвость')),
                 ],
               ),
             ),

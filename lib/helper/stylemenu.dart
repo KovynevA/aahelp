@@ -363,3 +363,81 @@ class TextAndIconRowWidget extends StatelessWidget {
     );
   }
 }
+// Виджет Text
+class BeautifulText extends StatelessWidget {
+  final String text;
+  final double fontSize;
+  final Color color;
+  final FontWeight fontWeight;
+  final bool withShadow;
+  final bool withGradient;
+  final bool withAnimation;
+  final TextAlign textAlign;
+
+  const BeautifulText({
+    super.key,
+    required this.text,
+    this.fontSize = 24,
+    this.color = Colors.blueAccent,
+    this.fontWeight = FontWeight.bold,
+    this.withShadow = true,
+    this.withGradient = false,
+    this.withAnimation = false,
+    this.textAlign = TextAlign.center,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textWidget = Center(
+      child: Text(
+        text,
+        textAlign: textAlign,
+        style: TextStyle(
+          fontSize: fontSize,
+          fontWeight: fontWeight,
+          color: withGradient ? Colors.white : color,
+          shadows: withShadow
+              ? [
+                  Shadow(
+                    blurRadius: 10,
+                    color: Colors.black.withValues(alpha: 0.3),
+                    offset: const Offset(2, 2),
+                  ),
+                ]
+              : null,
+        ),
+      ),
+    );
+
+    final content = withGradient
+        ? ShaderMask(
+            shaderCallback: (bounds) => LinearGradient(
+              colors: [
+                color,
+                Colors.purpleAccent,
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ).createShader(bounds),
+            child: textWidget,
+          )
+        : textWidget;
+
+    return withAnimation
+        ? TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0, end: 1),
+            duration: const Duration(milliseconds: 500),
+            builder: (context, value, child) {
+              return Opacity(
+                opacity: value,
+                child: Transform.scale(
+                  scale: value,
+                  child: child,
+                ),
+              );
+            },
+            child: content,
+          )
+        : content;
+  }
+}
