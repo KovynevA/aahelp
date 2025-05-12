@@ -15,7 +15,11 @@ class MySobriety extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.lightBlueAccent,
-        title: Text(title),
+        title: BeautifulText(
+          text: title,
+          fontSize: 18,
+          color: Colors.brown,
+        ),
       ),
       body: Container(
         decoration: BoxDecoration(

@@ -1,3 +1,4 @@
+import 'package:aahelp/helper/stylemenu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
@@ -13,7 +14,11 @@ class Diary extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.lightBlueAccent,
-        title: Text(title),
+        title: BeautifulText(
+          text: title,
+          fontSize: 18,
+          color: Colors.deepPurple,
+        ),
       ),
       body: const DiaryWidget(),
     );
