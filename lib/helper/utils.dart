@@ -166,7 +166,7 @@ class GroupSearchService {
           }
         }
       } catch (e) {
-        print('Ошибка $e в группе ${group.name}');
+        debugPrint('Ошибка $e в группе ${group.name}');
       }
     }
     return filteredGroups.toList();
@@ -404,7 +404,7 @@ class GroupsAA {
           .where((group) => group.metro?.contains(station) ?? false)
           .toList();
     } catch (e) {
-      print('Error: $e');
+      debugPrint('Error: $e');
       return [];
     }
   }
@@ -426,7 +426,7 @@ class GroupsAA {
             groupAAList.add(group);
           }
         } catch (e) {
-          print('Error parsing group: $e'); // Логируем ошибку
+          debugPrint('Error parsing group: $e'); // Логируем ошибку
         }
       }
 
@@ -445,7 +445,7 @@ class GroupsAA {
         return null; // Индекс вне диапазона
       }
     } catch (e) {
-      print('Error: $e');
+      debugPrint('Error: $e');
       return null; // Ошибка при загрузке списка групп
     }
   }

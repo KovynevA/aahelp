@@ -1,7 +1,7 @@
 import 'package:aahelp/diary/diaryhtml.dart';
 import 'package:aahelp/helper/stylemenu.dart';
 import 'package:aahelp/helper/utils.dart';
-import 'package:aahelp/findgroup/findMap.dart';
+import 'package:aahelp/findgroup/find_map.dart';
 import 'package:aahelp/mysobriety/mysobriety.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';

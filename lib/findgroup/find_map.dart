@@ -33,14 +33,19 @@ class _MapWidgetState extends State<FindMapWidget> {
   double? _panelHeightOpen;
   final PanelController panelController = PanelController();
   String? selectedNamegroup;
+  bool isGroup = true;
 
   @override
   void initState() {
     super.initState();
     _groups = widget.groups;
-    print(_groups?.last.nameOther);
+    debugPrint(_groups?.last.nameOther);
     _mapController = MapController();
     loadMarkerList(_groups!);
+  }
+
+  void updateMap() {
+    setState(() {});
   }
 
   @override
@@ -158,7 +163,7 @@ class _MapWidgetState extends State<FindMapWidget> {
       );
     });
 
-    print('Текущая позиция = $position');
+    debugPrint('Текущая позиция = $position');
   }
 
   Widget _panel(ScrollController sc, GroupsAA? group) {
@@ -184,7 +189,7 @@ class _MapWidgetState extends State<FindMapWidget> {
               icon: Icon(Icons.area_chart),
               text: ' ${group?.district}',
             ),
-          if (group?.metro != null && group?.metro != '')
+          if (group?.metro != null && group?.metro != [])
             TextAndIconRowWidget(
               icon: Icon(Icons.train),
               text: ' ${group?.metro}',
@@ -198,7 +203,7 @@ class _MapWidgetState extends State<FindMapWidget> {
           if (group?.address != null && group?.address != '')
             TextAndIconRowWidget(
                 icon: Icon(Icons.location_city), text: ' ${group?.address}'),
-          if (group?.phone != null && group?.phone != '')
+          if (group?.phone != null && group?.phone != [])
             TextAndIconRowWidget(
               icon: Icon(Icons.phone),
               text: '\n ${groupSearchService.formatPhone(group?.phone)}',
@@ -282,36 +287,40 @@ class _MapWidgetState extends State<FindMapWidget> {
                         'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                     userAgentPackageName: 'com.example.app',
                   ),
-                  MarkerClusterLayerWidget(
-                    options: MarkerClusterLayerOptions(
-                      maxClusterRadius: 120,
-                      size: const Size(40, 40),
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.all(50),
-                      maxZoom: 15,
-                      markers: _markers,
-                      builder: (context, markers) {
-                        return Container(
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              color: Colors.blue),
-                          child: Center(
-                            child: Text(
-                              markers.length.toString(),
-                              style: const TextStyle(color: Colors.white),
-                            ),
+                  isGroup
+                      ? MarkerClusterLayerWidget(
+                          options: MarkerClusterLayerOptions(
+                            maxClusterRadius: 0,
+                            size: const Size(40, 40),
+                            alignment: Alignment.center,
+                            padding: const EdgeInsets.all(50),
+                            maxZoom: 15,
+                            markers: _markers,
+                            builder: (context, markers) {
+                              return Container(
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    color: Colors.blue),
+                                child: Center(
+                                  child: Text(
+                                    markers.length.toString(),
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              );
+                            },
+                            onMarkerTap: (marker) {
+                              setState(() {
+                                panelController.open();
+                                selectedNamegroup =
+                                    (marker.key as ValueKey).value as String;
+                              });
+                            },
                           ),
-                        );
-                      },
-                      onMarkerTap: (marker) {
-                        setState(() {
-                          panelController.open();
-                          selectedNamegroup =
-                              (marker.key as ValueKey).value as String;
-                        });
-                      },
-                    ),
-                  ),
+                        )
+                      : GestureDetector(
+                          child: MarkerLayer(markers: _markers),
+                        ),
                 ],
               ),
               BuildFloatingSearchBar(
@@ -335,6 +344,34 @@ class _MapWidgetState extends State<FindMapWidget> {
                 selectedCriteria = criteria;
               });
             },
+          ),
+        ),
+        Positioned(
+          top: 50,
+          right: 10,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              BeautifulText(
+                text: isGroup ? 'Не группировать?' : 'Группировать?',
+                fontSize: 14,
+                color: Colors.deepPurple.shade400,
+              ),
+              Checkbox(
+                side: BorderSide(
+                  width: 1.5,
+                  color: Colors.deepPurple,
+                ),
+                semanticLabel: isGroup ? 'Не группировать?' : 'Группировать?',
+                value: isGroup,
+                onChanged: (bool? newvalue) {
+                  setState(() {
+                    isGroup = newvalue!;
+                    updateMap();
+                  });
+                },
+              ),
+            ],
           ),
         ),
       ],
@@ -417,7 +454,7 @@ class _BuildFloatingSearchBarState extends State<BuildFloatingSearchBar> {
         filterGroups = filterGroups
             .where((group) =>
                 group.metro != null &&
-                group.metro != '' &&
+                group.metro != [] &&
                 group.metro!.any((station) => station
                     .toLowerCase()
                     .startsWith(queryNameGroup.toLowerCase() as Pattern)))
@@ -632,7 +669,7 @@ class ExpandableFab extends StatefulWidget {
       {super.key, required this.searchCriteria, required this.onSelected});
 
   @override
-  _ExpandableFabState createState() => _ExpandableFabState();
+  State<ExpandableFab> createState() => _ExpandableFabState();
 }
 
 class _ExpandableFabState extends State<ExpandableFab>

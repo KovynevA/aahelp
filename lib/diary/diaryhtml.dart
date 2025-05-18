@@ -128,7 +128,7 @@ Future<Map<String, String>> loadAsset() async {
 Map<String, String> parseHtmlForToday(String htmlContent) {
   DateTime today = DateTime.now();
   String todayDate = '${today.day} ${_getMonthName(today.month)}';
-  print('Looking for date: $todayDate');
+  debugPrint('Looking for date: $todayDate');
 
   // Парсим HTML
   html_dom.Document document = html_parser.parse(htmlContent);
@@ -144,7 +144,7 @@ Map<String, String> parseHtmlForToday(String htmlContent) {
 
     // Если найдена сегодняшняя дата
     if (dateText.contains(todayDate)) {
-      print('Date found: $dateText');
+      debugPrint('Date found: $dateText');
 
       // Находим следующий элемент (заголовок h5)
       html_dom.Element? nextElement = dateHeader.nextElementSibling;
@@ -152,7 +152,7 @@ Map<String, String> parseHtmlForToday(String htmlContent) {
         if (nextElement.localName == 'h5') {
           // Нашли заголовок
           header = nextElement.text.trim();
-          print('Header found: $header');
+          debugPrint('Header found: $header');
         } else if (nextElement.localName == 'div') {
           // Нашли текст
           body = nextElement.innerHtml
@@ -167,7 +167,7 @@ Map<String, String> parseHtmlForToday(String htmlContent) {
   }
 
   if (header.isEmpty && body.isEmpty) {
-    print('No text found for today.');
+    debugPrint('No text found for today.');
     return {'header': '', 'body': 'No text found for today.'};
   }
 

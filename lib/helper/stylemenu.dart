@@ -318,17 +318,16 @@ abstract class Decor {
 class MultilineDropdownMenuItem<T> extends DropdownMenuItem<T> {
   final String text;
 
-  MultilineDropdownMenuItem({super.key, 
+  MultilineDropdownMenuItem({
+    super.key,
     required T value,
     required this.text,
   }) : super(
           value: value,
-          child: Container(
-            child: Text(
-              text,
-              maxLines: 2,
-              overflow: TextOverflow.visible,
-            ),
+          child: Text(
+            text,
+            maxLines: 2,
+            overflow: TextOverflow.visible,
           ),
         );
 }
@@ -363,6 +362,7 @@ class TextAndIconRowWidget extends StatelessWidget {
     );
   }
 }
+
 // Виджет Text
 class BeautifulText extends StatelessWidget {
   final String text;
