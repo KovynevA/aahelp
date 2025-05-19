@@ -39,7 +39,6 @@ class _MapWidgetState extends State<FindMapWidget> {
   void initState() {
     super.initState();
     _groups = widget.groups;
-    debugPrint(_groups?.last.nameOther);
     _mapController = MapController();
     loadMarkerList(_groups!);
   }
@@ -69,12 +68,14 @@ class _MapWidgetState extends State<FindMapWidget> {
                 double.parse(group.coordinates!.lon),
               ),
               group.nameOther,
+              group.companyId,
             ))
         .toList();
     _determinePosition();
     _markers.add(positionMarker());
   }
 
+// Местоположение пользователя
   Marker positionMarker() {
     return Marker(
       point: LatLng(_currentPosition?.latitude ?? 0.0,
@@ -87,9 +88,9 @@ class _MapWidgetState extends State<FindMapWidget> {
     );
   }
 
-  Marker buildMarker(LatLng coordinates, String word) {
+  Marker buildMarker(LatLng coordinates, String word, String id) {
     return Marker(
-      key: Key(word),
+      key: Key(id),
       width: 100,
       height: 60,
       point: coordinates,
@@ -237,11 +238,11 @@ class _MapWidgetState extends State<FindMapWidget> {
     super.dispose();
   }
 
-  GroupsAA? findGroupByName(String? name) {
+  GroupsAA? findGroupByID(String? id) {
     GroupsAA? foundGroup;
     if (_groups != null && _groups != []) {
       for (var group in _groups!) {
-        if (group.nameOther == name) {
+        if (group.companyId == id) {
           foundGroup = group;
           break;
         }
@@ -250,6 +251,13 @@ class _MapWidgetState extends State<FindMapWidget> {
     } else {
       return null;
     }
+  }
+
+  // Метод для вычисления расстояния между двумя точками
+  double _calculateDistance(LatLng a, LatLng b) {
+    final dx = a.latitude - b.latitude;
+    final dy = a.longitude - b.longitude;
+    return dx * dx + dy * dy; // Квадрат расстояния (для оптимизации)
   }
 
   @override
@@ -271,7 +279,7 @@ class _MapWidgetState extends State<FindMapWidget> {
           ),
           backdropEnabled: true,
           backdropColor: Colors.white,
-          panelBuilder: (sc) => _panel(sc, findGroupByName(selectedNamegroup)),
+          panelBuilder: (sc) => _panel(sc, findGroupByID(selectedNamegroup)),
           body: Stack(
             children: [
               FlutterMap(
@@ -279,6 +287,29 @@ class _MapWidgetState extends State<FindMapWidget> {
                   initialCenter: LatLng(55.751453, 37.618737),
                   initialZoom: 10.5,
                   keepAlive: true,
+                  onTap: (tapPosition, latLng) {
+                    // Проверяем, был ли нажат маркер
+                    if (!isGroup) {
+                      final tappedGroup = _groups?.firstWhere(
+                        (group) =>
+                            group.coordinates != null &&
+                            _calculateDistance(
+                                  LatLng(
+                                    double.parse(group.coordinates!.lat),
+                                    double.parse(group.coordinates!.lon),
+                                  ),
+                                  latLng,
+                                ) <
+                                0.000001, // Пороговое значение для нажатия
+                      );
+                      if (tappedGroup != null) {
+                        setState(() {
+                          selectedNamegroup = tappedGroup.companyId;
+                          panelController.open();
+                        });
+                      }
+                    }
+                  },
                 ),
                 mapController: _mapController,
                 children: [
@@ -290,7 +321,7 @@ class _MapWidgetState extends State<FindMapWidget> {
                   isGroup
                       ? MarkerClusterLayerWidget(
                           options: MarkerClusterLayerOptions(
-                            maxClusterRadius: 0,
+                            maxClusterRadius: 120,
                             size: const Size(40, 40),
                             alignment: Alignment.center,
                             padding: const EdgeInsets.all(50),
@@ -318,9 +349,7 @@ class _MapWidgetState extends State<FindMapWidget> {
                             },
                           ),
                         )
-                      : GestureDetector(
-                          child: MarkerLayer(markers: _markers),
-                        ),
+                      : MarkerLayer(markers: _markers),
                 ],
               ),
               BuildFloatingSearchBar(
