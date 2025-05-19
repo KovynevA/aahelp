@@ -7,6 +7,11 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
   const MyApp({super.key});
 
   @override
