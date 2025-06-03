@@ -68,14 +68,12 @@ class _MapWidgetState extends State<FindMapWidget> {
                 double.parse(group.coordinates!.lon),
               ),
               group.nameOther,
-              group.companyId,
             ))
         .toList();
     _determinePosition();
     _markers.add(positionMarker());
   }
 
-// Местоположение пользователя
   Marker positionMarker() {
     return Marker(
       point: LatLng(_currentPosition?.latitude ?? 0.0,
@@ -88,9 +86,9 @@ class _MapWidgetState extends State<FindMapWidget> {
     );
   }
 
-  Marker buildMarker(LatLng coordinates, String word, String id) {
+  Marker buildMarker(LatLng coordinates, String word) {
     return Marker(
-      key: Key(id),
+      key: Key(word),
       width: 100,
       height: 60,
       point: coordinates,
@@ -238,11 +236,11 @@ class _MapWidgetState extends State<FindMapWidget> {
     super.dispose();
   }
 
-  GroupsAA? findGroupByID(String? id) {
+  GroupsAA? findGroupByName(String? name) {
     GroupsAA? foundGroup;
     if (_groups != null && _groups != []) {
       for (var group in _groups!) {
-        if (group.companyId == id) {
+        if (group.nameOther == name) {
           foundGroup = group;
           break;
         }
@@ -251,13 +249,6 @@ class _MapWidgetState extends State<FindMapWidget> {
     } else {
       return null;
     }
-  }
-
-  // Метод для вычисления расстояния между двумя точками
-  double _calculateDistance(LatLng a, LatLng b) {
-    final dx = a.latitude - b.latitude;
-    final dy = a.longitude - b.longitude;
-    return dx * dx + dy * dy; // Квадрат расстояния (для оптимизации)
   }
 
   @override
@@ -279,7 +270,7 @@ class _MapWidgetState extends State<FindMapWidget> {
           ),
           backdropEnabled: true,
           backdropColor: Colors.white,
-          panelBuilder: (sc) => _panel(sc, findGroupByID(selectedNamegroup)),
+          panelBuilder: (sc) => _panel(sc, findGroupByName(selectedNamegroup)),
           body: Stack(
             children: [
               FlutterMap(
@@ -287,29 +278,7 @@ class _MapWidgetState extends State<FindMapWidget> {
                   initialCenter: LatLng(55.751453, 37.618737),
                   initialZoom: 10.5,
                   keepAlive: true,
-                  onTap: (tapPosition, latLng) {
-                    // Проверяем, был ли нажат маркер
-                    if (!isGroup) {
-                      final tappedGroup = _groups?.firstWhere(
-                        (group) =>
-                            group.coordinates != null &&
-                            _calculateDistance(
-                                  LatLng(
-                                    double.parse(group.coordinates!.lat),
-                                    double.parse(group.coordinates!.lon),
-                                  ),
-                                  latLng,
-                                ) <
-                                0.000001, // Пороговое значение для нажатия
-                      );
-                      if (tappedGroup != null) {
-                        setState(() {
-                          selectedNamegroup = tappedGroup.companyId;
-                          panelController.open();
-                        });
-                      }
-                    }
-                  },
+                  onTap: (tapPosition, point) {},
                 ),
                 mapController: _mapController,
                 children: [
@@ -321,7 +290,7 @@ class _MapWidgetState extends State<FindMapWidget> {
                   isGroup
                       ? MarkerClusterLayerWidget(
                           options: MarkerClusterLayerOptions(
-                            maxClusterRadius: 120,
+                            maxClusterRadius: 0,
                             size: const Size(40, 40),
                             alignment: Alignment.center,
                             padding: const EdgeInsets.all(50),

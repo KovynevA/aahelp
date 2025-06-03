@@ -3,6 +3,7 @@ import 'package:aahelp/diary/diaryhtml.dart';
 import 'package:aahelp/findgroup/findgroup.dart';
 import 'package:aahelp/helper/stylemenu.dart';
 import 'package:aahelp/mysobriety/mysobriety.dart';
+import 'package:aahelp/stepandtraditions/step.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -27,6 +28,10 @@ class TabBarPage extends StatelessWidget {
     }
     if (tabWidget is MySobriety) {
       title = (tabWidget as MySobriety)
+          .title; // Получаем параметр title из виджета FindGroup
+    }
+    if (tabWidget is StepAndTraditions) {
+      title = (tabWidget as StepAndTraditions)
           .title; // Получаем параметр title из виджета FindGroup
     }
 
