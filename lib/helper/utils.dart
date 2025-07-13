@@ -431,7 +431,7 @@ class GroupsAA {
             groupAAList.add(group);
           }
         } catch (e) {
-          debugPrint('Error parsing group: $e'); // Логируем ошибку
+          debugPrint('Error parsing group: $json $e'); // Логируем ошибку
         }
       }
 
