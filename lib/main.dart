@@ -2,9 +2,11 @@ import 'package:aahelp/findgroup/findgroup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:yandex_maps_mapkit/init.dart' as init;
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await init.initMapkit(apiKey: 'd6d67c41-2b7d-43a5-b78b-47adaf4e9227');
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,

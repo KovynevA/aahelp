@@ -1,4 +1,5 @@
 import 'package:aahelp/diary/diaryhtml.dart';
+import 'package:aahelp/findgroup/yandex_map.dart';
 import 'package:aahelp/helper/stylemenu.dart';
 import 'package:aahelp/helper/utils.dart';
 import 'package:aahelp/findgroup/find_map.dart';
