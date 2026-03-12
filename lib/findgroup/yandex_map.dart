@@ -1,7 +1,9 @@
 import 'package:aahelp/helper/utils.dart' show GroupsAA, TimePeriod;
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide ImageProvider;
+import 'package:latlong2/latlong.dart';
 import 'package:yandex_maps_mapkit/mapkit.dart';
 import 'package:yandex_maps_mapkit/mapkit_factory.dart';
+import 'package:yandex_maps_mapkit/src/bindings/image/image_provider.dart';
 import 'package:yandex_maps_mapkit/yandex_map.dart';
 
 class FindMapWidget extends StatefulWidget {
@@ -21,12 +23,39 @@ class FindMapWidget extends StatefulWidget {
 class _FindMapWidgetState extends State<FindMapWidget> {
   MapWindow? _mapWindow;
   List<GroupsAA>? _groups = [];
+  List<PlacemarkMapObject> _markers = [];
 
   @override
   void initState() {
     super.initState();
     _groups = widget.groups;
-    mapkit.onStart();
+    print(_groups?.length);
+  }
+
+  // Загрузка списка групп и расстановка маркеров
+  void loadMarkerList(List<GroupsAA> groups) {
+    _markers = groups
+        .where((group) => group.coordinates != null)
+        .map((group) => buildMarker(
+              LatLng(
+                double.parse(group.coordinates!.lat),
+                double.parse(group.coordinates!.lon),
+              ),
+              group.nameOther,
+              group.companyId,
+            ))
+        .toList();
+    // _determinePosition();
+    // _markers.add(positionMarker());
+  }
+
+  PlacemarkMapObject buildMarker(LatLng coordinates, String word, String id) {
+    final imageProvider =
+        ImageProvider.fromImageProvider(const AssetImage("assets/group.png"));
+    return _mapWindow!.map.mapObjects.addPlacemark()
+      ..geometry = Point(
+          latitude: coordinates.latitude, longitude: coordinates.longitude)
+      ..setIcon(imageProvider);
   }
 
   @override
