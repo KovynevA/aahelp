@@ -28,8 +28,11 @@ class _FindMapWidgetState extends State<FindMapWidget> {
   @override
   void initState() {
     super.initState();
+
     _groups = widget.groups;
-    print(_groups?.length);
+    if (_groups != [] || _groups != null) {
+      loadMarkerList(_groups!);
+    }
   }
 
   // Загрузка списка групп и расстановка маркеров
