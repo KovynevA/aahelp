@@ -1,66 +1,6 @@
 import 'dart:convert';
-import 'package:aahelp/diary/diaryhtml.dart';
-import 'package:aahelp/findgroup/findgroup.dart';
-import 'package:aahelp/helper/stylemenu.dart';
-import 'package:aahelp/mysobriety/mysobriety.dart';
-import 'package:aahelp/stepandtraditions/step.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
-class TabBarPage extends StatelessWidget {
-  final Widget tabWidget;
-
-  const TabBarPage({
-    super.key,
-    required this.tabWidget,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    String title = '';
-    if (tabWidget is FindGroup) {
-      title = (tabWidget as FindGroup)
-          .title; // Получаем параметр title из виджета FindGroup
-    }
-    if (tabWidget is Diary) {
-      title = (tabWidget as Diary)
-          .title; // Получаем параметр title из виджета FindGroup
-    }
-    if (tabWidget is MySobriety) {
-      title = (tabWidget as MySobriety)
-          .title; // Получаем параметр title из виджета FindGroup
-    }
-    if (tabWidget is StepAndTraditions) {
-      title = (tabWidget as StepAndTraditions)
-          .title; // Получаем параметр title из виджета FindGroup
-    }
-
-    return Card(
-      color: AppColor.cardColor,
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: ListTile(
-        title: Center(
-          child: Text(
-            title,
-            style: AppTextStyle.valuesstyle,
-          ),
-        ),
-        onTap: () {
-          Navigator.pop(context);
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => tabWidget,
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
 
 // Сравнение дат без времени
 bool compareDate(DateTime date1, DateTime date2) {
@@ -113,7 +53,7 @@ class GroupSearchService {
 
   // Вычленить Телефоны в мапе найденной группы
   String formatPhone(List<Phone>? phonelist) {
-    if (phonelist != null && phonelist != []) {
+    if (phonelist != null && phonelist.isNotEmpty) {
       String result = '';
       for (var phone in phonelist) {
         String info = phone.info == null ? '' : ' ${phone.info}';
@@ -431,7 +371,7 @@ class GroupsAA {
             groupAAList.add(group);
           }
         } catch (e) {
-          debugPrint('Error parsing group: $json $e'); // Логируем ошибку
+          debugPrint('Error parsing group: $e'); // Логируем ошибку
         }
       }
 

@@ -1,70 +1,46 @@
 import 'dart:ui';
 
+import 'package:aahelp/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-// Стиль полей ввода
 class TextFieldStyleWidget extends StatelessWidget {
+  const TextFieldStyleWidget({
+    super.key,
+    this.onChanged,
+    this.controller,
+    this.sizeheight = 52,
+    this.sizewidth = 180,
+    this.decoration,
+    this.text,
+  });
+
   final void Function(String)? onChanged;
   final TextEditingController? controller;
   final double sizewidth;
   final double sizeheight;
   final Decoration? decoration;
   final String? text;
-  const TextFieldStyleWidget({
-    super.key,
-    this.onChanged,
-    this.controller,
-    this.sizeheight = 50,
-    this.sizewidth = 105,
-    this.decoration,
-    this.text,
-  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: sizewidth,
       height: sizeheight,
-      decoration: decoration ??
-          BoxDecoration(
-              border: Border.all(width: 1.5, color: Colors.brown),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.white24,
-                  blurRadius: 2.0,
-                  offset: Offset(2.0, 1.0),
-                )
-              ]),
       child: TextFormField(
-        textAlignVertical: TextAlignVertical.center,
         controller: controller,
-        maxLines: null,
-        expands: true,
         onChanged: onChanged,
-        style: AppTextStyle.valuesstyle,
-        textAlign: TextAlign.center,
+        style: Theme.of(context).textTheme.bodyLarge,
         decoration: InputDecoration(
-          labelText: text,
-          labelStyle: AppTextStyle.valuesstyle,
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.fromLTRB(8.0, 2.0, 0, 2.0),
+          hintText: text,
+          prefixIcon: const Icon(Icons.edit_outlined),
+          filled: true,
         ),
       ),
     );
   }
 }
 
-// Виджет стиля поля ввода текста
 class AnimatedTextFieldStyleWidget extends StatefulWidget {
-  final void Function(String)? onChanged;
-  final void Function(bool)? onFocusChanged;
-  final TextEditingController? controller;
-  final double? sizewidth;
-  final double? sizeheight;
-  final Decoration? decoration;
-  final String? text;
-  final double heightCoeff;
-
   const AnimatedTextFieldStyleWidget({
     super.key,
     this.onChanged,
@@ -77,6 +53,15 @@ class AnimatedTextFieldStyleWidget extends StatefulWidget {
     this.heightCoeff = 0.1,
   });
 
+  final void Function(String)? onChanged;
+  final void Function(bool)? onFocusChanged;
+  final TextEditingController? controller;
+  final double? sizewidth;
+  final double? sizeheight;
+  final Decoration? decoration;
+  final String? text;
+  final double heightCoeff;
+
   @override
   State<AnimatedTextFieldStyleWidget> createState() =>
       _AnimatedTextFieldStyleWidgetState();
@@ -88,47 +73,31 @@ class _AnimatedTextFieldStyleWidgetState
 
   @override
   Widget build(BuildContext context) {
+    final media = MediaQuery.of(context).size;
+
     return AnimatedContainer(
-      width: _isFocused
-          ? MediaQuery.of(context).size.width * 0.9
-          : widget.sizewidth,
+      duration: const Duration(milliseconds: 220),
+      width: _isFocused ? media.width * 0.92 : widget.sizewidth,
       height: _isFocused
-          ? MediaQuery.of(context).size.height * widget.heightCoeff
-          : widget.sizeheight,
-      duration: const Duration(milliseconds: 200),
-      decoration: widget.decoration ??
-          BoxDecoration(
-            border: Border.all(width: 1.5, color: Colors.brown),
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.white24,
-                blurRadius: 2.0,
-                offset: Offset(2.0, 1.0),
-              )
-            ],
-          ),
+          ? media.height * widget.heightCoeff
+          : (widget.sizeheight ?? 54),
       child: Focus(
         onFocusChange: (hasFocus) {
           setState(() {
             _isFocused = hasFocus;
           });
-          if (widget.onFocusChanged != null) {
-            widget.onFocusChanged!(hasFocus);
-          }
+          widget.onFocusChanged?.call(hasFocus);
         },
         child: TextFormField(
-          textAlignVertical: TextAlignVertical.center,
           controller: widget.controller,
+          onChanged: widget.onChanged,
           maxLines: null,
           expands: true,
-          onChanged: widget.onChanged,
-          style: AppTextStyle.valuesstyle,
-          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodyLarge,
           decoration: InputDecoration(
-            labelText: widget.text,
-            labelStyle: AppTextStyle.spantextstyle,
-            border: InputBorder.none,
-            contentPadding: EdgeInsets.fromLTRB(8.0, 2.0, 0, 2.0),
+            hintText: widget.text,
+            prefixIcon: const Icon(Icons.edit_note_rounded),
+            alignLabelWithHint: true,
           ),
         ),
       ),
@@ -136,14 +105,7 @@ class _AnimatedTextFieldStyleWidgetState
   }
 }
 
-// Меню выбора DropDownButton
 class TreasureDropdownButton extends StatelessWidget {
-  final String value;
-  final List<String> items;
-  final Function(String?) onChanged;
-  final TextStyle styleText;
-  final Decoration? decoration;
-
   const TreasureDropdownButton({
     super.key,
     required this.value,
@@ -153,26 +115,32 @@ class TreasureDropdownButton extends StatelessWidget {
     this.decoration,
   });
 
+  final String value;
+  final List<String> items;
+  final Function(String?) onChanged;
+  final TextStyle styleText;
+  final Decoration? decoration;
+
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: decoration ??
-          const BoxDecoration(
-            border: Border.fromBorderSide(BorderSide.none),
+          BoxDecoration(
+            color: context.appPalette.surfaceMuted,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: context.appPalette.border),
           ),
       child: DropdownButton<String>(
-        underline: Container(),
+        underline: const SizedBox.shrink(),
+        isExpanded: true,
         menuMaxHeight: MediaQuery.of(context).size.height * 0.5,
-        dropdownColor: AppColor.cardColor,
-        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        dropdownColor: context.appPalette.surface,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
         value: value,
         items: items.map<DropdownMenuItem<String>>((String value) {
           return DropdownMenuItem<String>(
             value: value,
-            child: Text(
-              value,
-              style: styleText,
-            ),
+            child: Text(value, style: styleText),
           );
         }).toList(),
         onChanged: onChanged,
@@ -181,56 +149,43 @@ class TreasureDropdownButton extends StatelessWidget {
   }
 }
 
-// плавающие кнопки
 class CustomFloatingActionButton extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onPressed;
-
   const CustomFloatingActionButton({
     super.key,
     required this.icon,
     required this.onPressed,
   });
 
+  final IconData icon;
+  final VoidCallback onPressed;
+
   @override
   Widget build(BuildContext context) {
-    return FloatingActionButton(
+    return FloatingActionButton.small(
       heroTag: UniqueKey(),
-      backgroundColor:
-          AppColor.defaultColor.withValues(colorSpace: ColorSpace.sRGB),
-      mini: true,
+      backgroundColor: context.appPalette.surface,
+      foregroundColor: Theme.of(context).colorScheme.primary,
       onPressed: onPressed,
       child: Icon(icon),
     );
   }
 }
 
-// Стиль кнопок
 abstract class AppButtonStyle {
-  static final ButtonStyle iconButton = ButtonStyle(
-    backgroundColor:
-        WidgetStateProperty.all(const Color.fromARGB(185, 120, 155, 131)),
-    shadowColor: WidgetStateProperty.all(Colors.grey),
-    elevation: WidgetStateProperty.all(10.0),
-    // fixedSize: MaterialStateProperty.all(const Size(75, 25)),
-    side: WidgetStateProperty.all(
-      const BorderSide(width: 2.0, color: Colors.brown),
-    ),
-    shape: WidgetStateProperty.all(
-      RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(5.0),
-      ),
+  static final ButtonStyle iconButton = FilledButton.styleFrom(
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(18),
     ),
   );
 
   static final ButtonStyle dialogButton = ButtonStyle(
-    backgroundColor: WidgetStateProperty.all(Colors.white54),
-    shadowColor: WidgetStateProperty.all(Colors.grey),
-    elevation: WidgetStateProperty.all(10.0),
-    //fixedSize: MaterialStateProperty.all(const Size(140, 30)),
-    shape: WidgetStateProperty.all(
+    padding: const WidgetStatePropertyAll(
+      EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    ),
+    shape: WidgetStatePropertyAll(
       RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(5.0),
+        borderRadius: BorderRadius.circular(18),
       ),
     ),
   );
@@ -238,90 +193,59 @@ abstract class AppButtonStyle {
 
 abstract class AppTextStyle {
   static const menutextstyle = TextStyle(
-    color: Colors.black,
-    fontWeight: FontWeight.bold,
+    fontWeight: FontWeight.w700,
     fontSize: 18,
-    shadows: [
-      Shadow(
-        color: Colors.blueGrey,
-        blurRadius: 2.0,
-        offset: Offset(1.0, 0.0),
-      )
-    ],
   );
 
   static const valuesstyle = TextStyle(
-    color: Colors.black,
-    fontWeight: FontWeight.bold,
+    fontWeight: FontWeight.w700,
     fontSize: 16,
   );
 
   static const booktextstyle = TextStyle(
-    color: Colors.black,
-    fontWeight: FontWeight.bold,
+    fontWeight: FontWeight.w500,
     fontSize: 14,
+    height: 1.5,
   );
 
   static const minimalsstyle = TextStyle(
-    color: Colors.brown,
-    fontWeight: FontWeight.bold,
-    //fontStyle: FontStyle.italic,
+    fontWeight: FontWeight.w700,
     fontSize: 12,
   );
 
   static const spantextstyle = TextStyle(
-    color: Colors.brown,
-    fontWeight: FontWeight.bold,
-    fontStyle: FontStyle.italic,
+    fontWeight: FontWeight.w500,
     fontSize: 14,
+    height: 1.4,
   );
 }
 
 abstract class AppColor {
-  static const defaultColor = Color.fromARGB(255, 225, 218, 245);
-  static const backgroundColor = Color.fromRGBO(223, 234, 232, 1);
-  static const cardColor = Color.fromRGBO(235, 218, 199, 1);
-  static const deleteCardColor = Color.fromARGB(255, 191, 161, 227);
+  static const defaultColor = Color(0xFFE6F0EC);
+  static const backgroundColor = Color(0xFFF4F8FF);
+  static const cardColor = Color(0xFFFDFEFF);
+  static const deleteCardColor = Color(0xFFD3DFE6);
 }
 
 abstract class Decor {
   static final decorDropDownButton = BoxDecoration(
-    gradient: LinearGradient(colors: [
-      AppColor.cardColor,
-      AppColor.backgroundColor,
-    ]),
-    boxShadow: <BoxShadow>[
-      BoxShadow(
-          color: Color.fromRGBO(0, 0, 0, 0.57), //shadow for button
-          blurRadius: 0) //blur radius of shadow
-    ],
-    border: Border.all(
-      width: 2.0,
-      color: AppColor.deleteCardColor,
-    ),
+    color: AppColor.cardColor,
+    borderRadius: BorderRadius.circular(18),
+    border: Border.all(color: AppColor.deleteCardColor),
   );
 
   static final decorTextField = BoxDecoration(
-    border: Border.all(width: 1.5, color: AppColor.deleteCardColor),
-    gradient: const LinearGradient(colors: [
-      AppColor.cardColor,
-      AppColor.backgroundColor,
-    ]),
-    boxShadow: const <BoxShadow>[
-      BoxShadow(
-          color: Color.fromRGBO(0, 0, 0, 0.57), //shadow for button
-          blurRadius: 5) //blur radius of shadow
-    ],
+    color: AppColor.cardColor,
+    borderRadius: BorderRadius.circular(18),
+    border: Border.all(color: AppColor.deleteCardColor),
   );
 }
 
 class MultilineDropdownMenuItem<T> extends DropdownMenuItem<T> {
-  final String text;
-
   MultilineDropdownMenuItem({
     super.key,
     required T value,
-    required this.text,
+    required String text,
   }) : super(
           value: value,
           child: Text(
@@ -332,28 +256,151 @@ class MultilineDropdownMenuItem<T> extends DropdownMenuItem<T> {
         );
 }
 
-class TextAndIconRowWidget extends StatelessWidget {
-  final Icon icon;
-  final String text;
+class AppPanel extends StatelessWidget {
+  const AppPanel({
+    super.key,
+    required this.child,
+    this.padding = const EdgeInsets.all(18),
+    this.radius = 28,
+    this.gradient,
+  });
 
-  const TextAndIconRowWidget(
-      {super.key, required this.icon, required this.text});
+  final Widget child;
+  final EdgeInsetsGeometry padding;
+  final double radius;
+  final Gradient? gradient;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width * 0.98,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          icon,
-          SizedBox(
-            width: 10,
+    final palette = context.appPalette;
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(radius),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: padding,
+          decoration: BoxDecoration(
+            gradient: gradient,
+            color: gradient == null
+                ? palette.surface.withValues(alpha: 0.9)
+                : null,
+            borderRadius: BorderRadius.circular(radius),
+            border: Border.all(
+              color: palette.border.withValues(alpha: 0.72),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: palette.shadow,
+                blurRadius: 22,
+                offset: const Offset(0, 16),
+              ),
+            ],
           ),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+class AppMetricCard extends StatelessWidget {
+  const AppMetricCard({
+    super.key,
+    required this.label,
+    required this.value,
+    this.icon,
+    this.accent,
+  });
+
+  final String label;
+  final String value;
+  final IconData? icon;
+  final Color? accent;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final palette = context.appPalette;
+    final chipColor = accent ?? palette.accent;
+
+    return AppPanel(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          if (icon != null)
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: chipColor.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(icon, color: chipColor),
+            ),
+          if (icon != null) const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  value,
+                  style: theme.textTheme.headlineMedium,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  label,
+                  style: theme.textTheme.bodySmall,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class TextAndIconRowWidget extends StatelessWidget {
+  const TextAndIconRowWidget({
+    super.key,
+    required this.icon,
+    required this.text,
+  });
+
+  final Icon icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final palette = context.appPalette;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: palette.accentSoft,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: IconTheme(
+              data: IconThemeData(
+                color: palette.accent,
+                size: 18,
+              ),
+              child: icon,
+            ),
+          ),
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
-              text,
-              style: AppTextStyle.valuesstyle,
+              text.trim(),
+              style: theme.textTheme.bodyLarge,
               softWrap: true,
             ),
           ),
@@ -363,8 +410,19 @@ class TextAndIconRowWidget extends StatelessWidget {
   }
 }
 
-// Виджет Text
 class BeautifulText extends StatelessWidget {
+  const BeautifulText({
+    super.key,
+    required this.text,
+    this.fontSize = 24,
+    this.color = Colors.blueAccent,
+    this.fontWeight = FontWeight.bold,
+    this.withShadow = false,
+    this.withGradient = false,
+    this.withAnimation = false,
+    this.textAlign = TextAlign.center,
+  });
+
   final String text;
   final double fontSize;
   final Color color;
@@ -374,70 +432,58 @@ class BeautifulText extends StatelessWidget {
   final bool withAnimation;
   final TextAlign textAlign;
 
-  const BeautifulText({
-    super.key,
-    required this.text,
-    this.fontSize = 24,
-    this.color = Colors.blueAccent,
-    this.fontWeight = FontWeight.bold,
-    this.withShadow = true,
-    this.withGradient = false,
-    this.withAnimation = false,
-    this.textAlign = TextAlign.center,
-  });
-
   @override
   Widget build(BuildContext context) {
-    final textWidget = Center(
-      child: Text(
-        text,
-        textAlign: textAlign,
-        style: TextStyle(
-          fontSize: fontSize,
-          fontWeight: fontWeight,
-          color: withGradient ? Colors.white : color,
-          shadows: withShadow
-              ? [
-                  Shadow(
-                    blurRadius: 10,
-                    color: Colors.black.withValues(alpha: 0.3),
-                    offset: const Offset(2, 2),
-                  ),
-                ]
-              : null,
-        ),
-      ),
+    final palette = context.appPalette;
+
+    Widget child = Text(
+      text,
+      textAlign: textAlign,
+      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            fontSize: fontSize,
+            fontWeight: fontWeight,
+            color: withGradient ? Colors.white : color,
+            shadows: withShadow
+                ? [
+                    Shadow(
+                      blurRadius: 12,
+                      color: palette.shadow,
+                      offset: const Offset(0, 6),
+                    ),
+                  ]
+                : null,
+          ),
     );
 
-    final content = withGradient
-        ? ShaderMask(
-            shaderCallback: (bounds) => LinearGradient(
-              colors: [
-                color,
-                Colors.purpleAccent,
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ).createShader(bounds),
-            child: textWidget,
-          )
-        : textWidget;
+    if (withGradient) {
+      child = ShaderMask(
+        shaderCallback: (bounds) => LinearGradient(
+          colors: [
+            palette.heroStart,
+            palette.heroEnd,
+          ],
+        ).createShader(bounds),
+        child: child,
+      );
+    }
 
-    return withAnimation
-        ? TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0, end: 1),
-            duration: const Duration(milliseconds: 500),
-            builder: (context, value, child) {
-              return Opacity(
-                opacity: value,
-                child: Transform.scale(
-                  scale: value,
-                  child: child,
-                ),
-              );
-            },
-            child: content,
-          )
-        : content;
+    if (!withAnimation) {
+      return child;
+    }
+
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.95, end: 1),
+      duration: const Duration(milliseconds: 380),
+      builder: (context, value, animatedChild) {
+        return Opacity(
+          opacity: value,
+          child: Transform.scale(
+            scale: value,
+            child: animatedChild,
+          ),
+        );
+      },
+      child: child,
+    );
   }
 }

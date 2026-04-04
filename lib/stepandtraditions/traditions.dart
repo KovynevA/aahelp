@@ -1,4 +1,5 @@
 import 'package:aahelp/helper/stylemenu.dart';
+import 'package:aahelp/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class Traditions12 extends StatelessWidget {
@@ -6,30 +7,28 @@ class Traditions12 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: traditions.length,
-        itemBuilder: (context, index) {
-          return TraditionCard(
-            tradition: traditions[index],
-            index: index,
-          );
-        },
-      ),
+    return ListView.builder(
+      padding: const EdgeInsets.only(top: 8, bottom: 24),
+      itemCount: traditions.length,
+      itemBuilder: (context, index) {
+        return TraditionCard(
+          tradition: traditions[index],
+          index: index,
+        );
+      },
     );
   }
 }
 
 class TraditionCard extends StatefulWidget {
-  final Map<String, String> tradition;
-  final int index;
-
   const TraditionCard({
     super.key,
     required this.tradition,
     required this.index,
   });
+
+  final Map<String, String> tradition;
+  final int index;
 
   @override
   State<TraditionCard> createState() => _TraditionCardState();
@@ -40,101 +39,80 @@ class _TraditionCardState extends State<TraditionCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
+    final theme = Theme.of(context);
+    final palette = context.appPalette;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: AppPanel(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 36,
-                  height: 36,
+                  width: 44,
+                  height: 44,
                   decoration: BoxDecoration(
-                    color:
-                        Theme.of(context).primaryColor.withValues(alpha: 0.2),
-                    shape: BoxShape.circle,
+                    color: palette.accentSoft,
+                    borderRadius: BorderRadius.circular(14),
                   ),
                   child: Center(
-                    child: BeautifulText(
-                      text: '${widget.index + 1}',
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Colors.indigo,
+                    child: Text(
+                      '${widget.index + 1}',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: palette.accent,
+                      ),
                     ),
                   ),
                 ),
+                const SizedBox(width: 14),
                 Expanded(
-                  child: BeautifulText(
-                    text: 'традиция',
-                    fontSize: 18,
-                    color: Colors.indigo,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Традиция ${widget.index + 1}',
+                        style: theme.textTheme.titleLarge,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        widget.tradition['short']!,
+                        style: theme.textTheme.bodyLarge,
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            BeautifulText(
-              text: widget.tradition['short']!,
-              fontSize: 16,
-              textAlign: TextAlign.justify,
-              color: Colors.black,
-            ),
             if (widget.tradition['long'] != null) ...[
-              const SizedBox(height: 4),
+              const SizedBox(height: 12),
               AnimatedCrossFade(
-                duration: const Duration(milliseconds: 300),
+                duration: const Duration(milliseconds: 280),
                 crossFadeState: _isExpanded
                     ? CrossFadeState.showSecond
                     : CrossFadeState.showFirst,
-                firstChild: TextButton(
-                  onPressed: () => setState(() => _isExpanded = true),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SizedBox(
-                        width: 36,
-                      ),
-                      BeautifulText(
-                        text: 'Подробнее',
-                        fontSize: 16,
-                        color: Colors.blueGrey,
-                      ),
-                      SizedBox(width: 4),
-                      Icon(Icons.expand_more, size: 20),
-                    ],
+                firstChild: Align(
+                  alignment: Alignment.centerLeft,
+                  child: FilledButton.tonalIcon(
+                    onPressed: () => setState(() => _isExpanded = true),
+                    icon: const Icon(Icons.expand_more_rounded),
+                    label: const Text('Подробнее'),
                   ),
                 ),
                 secondChild: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    BeautifulText(
-                      text: widget.tradition['long']!,
-                      fontSize: 15,
-                      color: Colors.brown,
-                      textAlign: TextAlign.justify,
+                    Text(
+                      widget.tradition['long']!,
+                      style: theme.textTheme.bodyMedium,
                     ),
-                    const SizedBox(height: 8),
-                    TextButton(
+                    const SizedBox(height: 12),
+                    FilledButton.tonalIcon(
                       onPressed: () => setState(() => _isExpanded = false),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          BeautifulText(
-                            text: 'Свернуть',
-                            fontSize: 16,
-                            color: Colors.blueGrey,
-                          ),
-                          SizedBox(width: 4),
-                          Icon(Icons.expand_less, size: 20),
-                        ],
-                      ),
+                      icon: const Icon(Icons.expand_less_rounded),
+                      label: const Text('Свернуть'),
                     ),
                   ],
                 ),

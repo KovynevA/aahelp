@@ -1,14 +1,10 @@
-import 'package:aahelp/findgroup/findgroup.dart';
+import 'package:aahelp/app/home_shell.dart';
+import 'package:aahelp/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
   runApp(const MyApp());
 }
 
@@ -17,20 +13,24 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('ru', 'RU'), // Русский язык
-      ],
-      locale: const Locale('ru', 'RU'),
-
-      debugShowCheckedModeBanner: false,
-      home: FindGroup(
-          title: 'Найти группу'), // Выносим основной контент в отдельный виджет
+    return ValueListenableBuilder<AppThemePreset>(
+      valueListenable: AppThemeController.instance,
+      builder: (context, preset, _) {
+        return MaterialApp(
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('ru', 'RU'),
+          ],
+          locale: const Locale('ru', 'RU'),
+          debugShowCheckedModeBanner: false,
+          theme: buildAppTheme(preset),
+          home: const AaHomeShell(),
+        );
+      },
     );
   }
 }

@@ -1,58 +1,55 @@
 import 'package:aahelp/helper/stylemenu.dart';
 import 'package:aahelp/stepandtraditions/traditions.dart';
+import 'package:aahelp/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-class StepAndTraditions extends StatefulWidget {
-  final String title;
-
-  const StepAndTraditions({super.key, required this.title});
-
-  @override
-  State<StepAndTraditions> createState() => _StepAndTraditionsState();
-}
-
-class _StepAndTraditionsState extends State<StepAndTraditions>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-  List<String> tabname = ['12 Шагов', '12 Традиций'];
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: tabname.length, vsync: this);
-  }
+class StepAndTraditions extends StatelessWidget {
+  const StepAndTraditions({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColor.backgroundColor,
-      appBar: AppBar(
-        backgroundColor: Colors.lightBlueAccent,
-        title: BeautifulText(
-          text: widget.title,
-          color: Colors.brown,
-          fontSize: 18,
-        ),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: List.generate(
-              _tabController.length, (index) => Tab(text: tabname[index])),
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
+    return DefaultTabController(
+      length: 2,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Step12(),
-          Traditions12(),
+          AppPanel(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Тексты, к которым удобно возвращаться каждый день',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Короткая навигация по 12 шагам и 12 традициям, с раскрытием подробных формулировок там, где это полезно.',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 16),
+                TabBar(
+                  dividerColor: Colors.transparent,
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  tabs: const [
+                    Tab(text: '12 шагов'),
+                    Tab(text: '12 традиций'),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Expanded(
+            child: TabBarView(
+              children: [
+                Step12(),
+                Traditions12(),
+              ],
+            ),
+          ),
         ],
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
   }
 }
 
@@ -62,7 +59,7 @@ class Step12 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.only(top: 8, bottom: 24),
       itemCount: steps.length,
       itemBuilder: (context, index) {
         return AnimatedStepCard(
@@ -75,14 +72,14 @@ class Step12 extends StatelessWidget {
 }
 
 class AnimatedStepCard extends StatefulWidget {
-  final Map<String, String> step;
-  final int index;
-
   const AnimatedStepCard({
     super.key,
     required this.step,
     required this.index,
   });
+
+  final Map<String, String> step;
+  final int index;
 
   @override
   State<AnimatedStepCard> createState() => _AnimatedStepCardState();
@@ -98,24 +95,24 @@ class _AnimatedStepCardState extends State<AnimatedStepCard>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: Duration(milliseconds: 500 + (widget.index * 100)),
+      duration: Duration(milliseconds: 440 + (widget.index * 45)),
       vsync: this,
     );
 
     _offsetAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.5),
+      begin: const Offset(0, 0.15),
       end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _controller,
-      curve: Curves.easeOut,
+      curve: Curves.easeOutCubic,
     ));
 
     _scaleAnimation = Tween<double>(
-      begin: 0.95,
+      begin: 0.98,
       end: 1.0,
     ).animate(CurvedAnimation(
       parent: _controller,
-      curve: Curves.easeOut,
+      curve: Curves.easeOutCubic,
     ));
 
     _controller.forward();
@@ -129,57 +126,56 @@ class _AnimatedStepCardState extends State<AnimatedStepCard>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final palette = context.appPalette;
+
     return SlideTransition(
       position: _offsetAnimation,
       child: ScaleTransition(
         scale: _scaleAnimation,
-        child: Card(
-          margin: const EdgeInsets.only(bottom: 16),
-          elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 14),
+          child: AppPanel(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      width: 36,
-                      height: 36,
+                      width: 44,
+                      height: 44,
                       decoration: BoxDecoration(
-                        color: Theme.of(context)
-                            .primaryColor
-                            .withValues(alpha: 0.2),
-                        shape: BoxShape.circle,
+                        color: palette.accentSoft,
+                        borderRadius: BorderRadius.circular(14),
                       ),
                       child: Center(
-                        child: BeautifulText(
-                          text: '${widget.index + 1}',
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.indigo,
+                        child: Text(
+                          '${widget.index + 1}',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: palette.accent,
+                          ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 14),
                     Expanded(
-                      child: BeautifulText(
-                        text: widget.step['title']!,
-                        fontSize: 18,
-                        color: Colors.indigo,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.step['title']!,
+                            style: theme.textTheme.titleLarge,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            widget.step['text']!,
+                            style: theme.textTheme.bodyLarge,
+                          ),
+                        ],
                       ),
                     ),
                   ],
-                ),
-                const SizedBox(height: 12),
-                BeautifulText(
-                  text: widget.step['text']!,
-                  fontSize: 16,
-                  textAlign: TextAlign.justify,
-                  color: Colors.black,
                 ),
               ],
             ),

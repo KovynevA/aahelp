@@ -1,115 +1,125 @@
 import 'package:aahelp/helper/stylemenu.dart';
+import 'package:aahelp/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
-import 'package:html/parser.dart' as html_parser;
 import 'package:html/dom.dart' as html_dom;
+import 'package:html/parser.dart' as html_parser;
 
 class Diary extends StatelessWidget {
-  final String title;
-  const Diary({super.key, required this.title});
+  const Diary({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.lightBlueAccent,
-        title: BeautifulText(
-          text: title,
-          fontSize: 18,
-          color: Colors.deepPurple,
-        ),
-      ),
-      body: const DiaryWidget(),
-    );
+    return const DiaryWidget();
   }
 }
 
-class DiaryWidget extends StatefulWidget {
+class DiaryWidget extends StatelessWidget {
   const DiaryWidget({super.key});
 
   @override
-  State<DiaryWidget> createState() => _DiaryWidgetState();
-}
-
-class _DiaryWidgetState extends State<DiaryWidget> {
-  @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    final maxWidth = width >= 1280 ? 980.0 : 860.0;
+
     return FutureBuilder<Map<String, String>>(
       future: loadAsset(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          if (snapshot.hasData) {
-            Map<String, String> todayText = snapshot.data!;
-            String header = todayText['header']!;
-            String body = todayText['body']!;
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-            DateTime today = DateTime.now();
-            String todayDate = '${today.day} ${_getMonthName(today.month)}';
+        if (snapshot.hasError) {
+          return AppPanel(
+            child: Center(
+              child: Text('Ошибка: ${snapshot.error}'),
+            ),
+          );
+        }
 
-            return SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Дата
-                    Text(
-                      todayDate,
-                      style: const TextStyle(
-                        fontSize: 22,
-                        color: Colors.deepPurple,
-                        fontWeight: FontWeight.bold,
-                      ),
+        if (!snapshot.hasData) {
+          return const AppPanel(
+            child: Center(child: Text('Ошибка загрузки ежедневника')),
+          );
+        }
+
+        final todayText = snapshot.data!;
+        final header = todayText['header'] ?? '';
+        final body = todayText['body'] ?? '';
+        final today = DateTime.now();
+        final todayDate = '${today.day} ${_getMonthName(today.month)}';
+        final palette = context.appPalette;
+
+        return Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxWidth),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.only(bottom: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AppPanel(
+                    gradient: LinearGradient(
+                      colors: [
+                        palette.heroStart.withValues(alpha: 0.92),
+                        palette.heroEnd.withValues(alpha: 0.92),
+                      ],
                     ),
-                    const SizedBox(height: 16),
-
-                    // Заголовок <h5> (жирный и по центру)
-                    if (header.isNotEmpty)
-                      Center(
-                        child: Text(
-                          header,
-                          style: const TextStyle(
-                            fontSize: 22,
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                          ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          todayDate,
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                color: palette.isDark
+                                    ? Colors.white
+                                    : const Color(0xFF172B38),
+                              ),
                         ),
-                      ),
-
-                    //const SizedBox(height: 16),
-
-                    // Основной текст
-                    HtmlWidget(
+                        const SizedBox(height: 10),
+                        Text(
+                          header.isEmpty ? 'Текст на сегодня' : header,
+                          style:
+                              Theme.of(context).textTheme.displaySmall?.copyWith(
+                                    fontSize: 28,
+                                    color: palette.isDark
+                                        ? Colors.white
+                                        : const Color(0xFF132734),
+                                  ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  AppPanel(
+                    child: HtmlWidget(
                       body,
-                      textStyle: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.black,
-                      ),
-                      // Если у вас есть стили в HTML, вы можете использовать customStylesBuilder
+                      textStyle: Theme.of(context).textTheme.bodyLarge,
                       customStylesBuilder: (element) {
                         if (element.localName == 'h5') {
                           return {
-                            'color': 'black',
-                            'font-weight': 'bold',
-                            'font-size': '30'
+                            'font-size': '26px',
+                            'font-weight': '700',
+                            'margin-bottom': '12px',
+                          };
+                        }
+                        if (element.localName == 'p') {
+                          return {
+                            'line-height': '1.65',
+                            'margin-bottom': '12px',
                           };
                         }
                         return null;
                       },
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            );
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Ошибка: ${snapshot.error}'));
-          } else {
-            return const Center(child: Text('Ошибка загрузки Ежедневника'));
-          }
-        } else {
-          return const Center(child: CircularProgressIndicator());
-        }
+            ),
+          ),
+        );
       },
     );
   }
@@ -117,7 +127,7 @@ class _DiaryWidgetState extends State<DiaryWidget> {
 
 Future<Map<String, String>> loadAsset() async {
   try {
-    String data = await rootBundle.loadString('assets/txt/diary.html');
+    final data = await rootBundle.loadString('assets/txt/diary.html');
     return parseHtmlForToday(data);
   } catch (e) {
     debugPrint('Error loading file: $e');
@@ -126,52 +136,38 @@ Future<Map<String, String>> loadAsset() async {
 }
 
 Map<String, String> parseHtmlForToday(String htmlContent) {
-  DateTime today = DateTime.now();
-  String todayDate = '${today.day} ${_getMonthName(today.month)}';
-  debugPrint('Looking for date: $todayDate');
+  final today = DateTime.now();
+  final todayDate = '${today.day} ${_getMonthName(today.month)}';
+  final document = html_parser.parse(htmlContent);
+  final dateHeaders = document.querySelectorAll('h2');
 
-  // Парсим HTML
-  html_dom.Document document = html_parser.parse(htmlContent);
+  var header = '';
+  var body = '';
 
-  // Находим все заголовки h2 (даты)
-  List<html_dom.Element> dateHeaders = document.querySelectorAll('h2');
-
-  String header = '';
-  String body = '';
-
-  for (var dateHeader in dateHeaders) {
-    String dateText = dateHeader.text.trim();
-
-    // Если найдена сегодняшняя дата
-    if (dateText.contains(todayDate)) {
-      debugPrint('Date found: $dateText');
-
-      // Находим следующий элемент (заголовок h5)
-      html_dom.Element? nextElement = dateHeader.nextElementSibling;
-      while (nextElement != null) {
-        if (nextElement.localName == 'h5') {
-          // Нашли заголовок
-          header = nextElement.text.trim();
-          debugPrint('Header found: $header');
-        } else if (nextElement.localName == 'div') {
-          // Нашли текст
-          body = nextElement.innerHtml
-              .trim(); // Используем innerHtml для сохранения HTML-форматирования
-          break;
-        }
-        nextElement = nextElement.nextElementSibling;
-      }
-
-      break;
+  for (final dateHeader in dateHeaders) {
+    final dateText = dateHeader.text.trim();
+    if (!dateText.contains(todayDate)) {
+      continue;
     }
+
+    html_dom.Element? nextElement = dateHeader.nextElementSibling;
+    while (nextElement != null) {
+      if (nextElement.localName == 'h5') {
+        header = nextElement.text.trim();
+      } else if (nextElement.localName == 'div') {
+        body = nextElement.innerHtml.trim();
+        break;
+      }
+      nextElement = nextElement.nextElementSibling;
+    }
+
+    break;
   }
 
   if (header.isEmpty && body.isEmpty) {
-    debugPrint('No text found for today.');
     return {'header': '', 'body': 'No text found for today.'};
   }
 
-  // Возвращаем заголовок и основной текст
   return {'header': header, 'body': body};
 }
 
