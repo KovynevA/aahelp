@@ -1112,140 +1112,155 @@ class _SelectedGroupPanel extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              if ((group.city?.isNotEmpty ?? false))
-                _MetaChip(icon: Icons.location_city_outlined, label: group.city!),
-              if ((group.district?.isNotEmpty ?? false))
-                _MetaChip(icon: Icons.map_outlined, label: group.district!),
-              if (group.metro?.isNotEmpty ?? false)
-                ...group.metro!.map(
-                  (station) => _MetaChip(
-                    icon: Icons.train_outlined,
-                    label: station,
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Маршрут',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: RouteMode.values.map((mode) {
-              final routeUrl = _buildYandexRouteUrl(mode);
-              return FilledButton.tonalIcon(
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 11,
-                  ),
-                ),
-                onPressed: routeUrl == null
-                    ? null
-                    : () => launchUrlString(
-                          routeUrl,
-                          mode: kIsWeb
-                              ? LaunchMode.platformDefault
-                              : LaunchMode.externalApplication,
-                        ),
-                icon: Icon(mode.icon),
-                label: Text(mode.label),
-              );
-            }).toList(),
-          ),
-          if (!canBuildRoute)
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(
-                'Для построения маршрута нужно разрешить доступ к геопозиции.',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ),
-          const SizedBox(height: 12),
           Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if ((group.address?.isNotEmpty ?? false))
-                    TextAndIconRowWidget(
-                      icon: const Icon(Icons.place_outlined),
-                      text: group.address!,
+            child: ScrollConfiguration(
+              behavior: const MaterialScrollBehavior().copyWith(
+                overscroll: false,
+              ),
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(
+                  parent: AlwaysScrollableScrollPhysics(),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        if ((group.city?.isNotEmpty ?? false))
+                          _MetaChip(
+                            icon: Icons.location_city_outlined,
+                            label: group.city!,
+                          ),
+                        if ((group.district?.isNotEmpty ?? false))
+                          _MetaChip(
+                            icon: Icons.map_outlined,
+                            label: group.district!,
+                          ),
+                        if (group.metro?.isNotEmpty ?? false)
+                          ...group.metro!.map(
+                            (station) => _MetaChip(
+                              icon: Icons.train_outlined,
+                              label: station,
+                            ),
+                          ),
+                      ],
                     ),
-                  if (group.workingTime?.isNotEmpty ?? false)
-                    TextAndIconRowWidget(
-                      icon: const Icon(Icons.schedule_outlined),
-                      text: groupSearchService.formatTiming(group.workingTime),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Маршрут',
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
-                  if (group.phone?.isNotEmpty ?? false)
-                    TextAndIconRowWidget(
-                      icon: const Icon(Icons.call_outlined),
-                      text: groupSearchService.formatPhone(group.phone),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: RouteMode.values.map((mode) {
+                        final routeUrl = _buildYandexRouteUrl(mode);
+                        return FilledButton.tonalIcon(
+                          style: FilledButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 11,
+                            ),
+                          ),
+                          onPressed: routeUrl == null
+                              ? null
+                              : () => launchUrlString(
+                                    routeUrl,
+                                    mode: kIsWeb
+                                        ? LaunchMode.platformDefault
+                                        : LaunchMode.externalApplication,
+                                  ),
+                          icon: Icon(mode.icon),
+                          label: Text(mode.label),
+                        );
+                      }).toList(),
                     ),
-                  if ((group.infoPage?.isNotEmpty ?? false))
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10),
-                      child: RichText(
-                        text: TextSpan(
-                          text: group.infoPage!,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(
-                                color: Theme.of(context).colorScheme.primary,
-                                decoration: TextDecoration.underline,
-                              ),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () {
-                              launchUrlString(group.infoPage!);
-                            },
+                    if (!canBuildRoute)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(
+                          'Для построения маршрута нужно разрешить доступ к геопозиции.',
+                          style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ),
+                    const SizedBox(height: 12),
+                    if ((group.address?.isNotEmpty ?? false))
+                      TextAndIconRowWidget(
+                        icon: const Icon(Icons.place_outlined),
+                        text: group.address!,
+                      ),
+                    if (group.workingTime?.isNotEmpty ?? false)
+                      TextAndIconRowWidget(
+                        icon: const Icon(Icons.schedule_outlined),
+                        text: groupSearchService.formatTiming(group.workingTime),
+                      ),
+                    if (group.phone?.isNotEmpty ?? false)
+                      TextAndIconRowWidget(
+                        icon: const Icon(Icons.call_outlined),
+                        text: groupSearchService.formatPhone(group.phone),
+                      ),
+                    if ((group.infoPage?.isNotEmpty ?? false))
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10),
+                        child: RichText(
+                          text: TextSpan(
+                            text: group.infoPage!,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  decoration: TextDecoration.underline,
+                                ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                launchUrlString(group.infoPage!);
+                              },
+                          ),
+                        ),
+                      ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: [
+                        if (group.infoPage?.isNotEmpty ?? false)
+                          FilledButton.tonalIcon(
+                            style: FilledButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 12,
+                              ),
+                            ),
+                            onPressed: () => launchUrlString(group.infoPage!),
+                            icon: const Icon(Icons.open_in_new_rounded),
+                            label: const Text('Подробнее'),
+                          ),
+                        if (phone != null)
+                          OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 12,
+                              ),
+                            ),
+                            onPressed: () => launchUrlString(
+                              'tel:${phone.replaceAll(RegExp(r'[^0-9+]'), '')}',
+                            ),
+                            icon: const Icon(Icons.call_rounded),
+                            label: const Text('Позвонить'),
+                          ),
+                      ],
                     ),
-                ],
+                    const SizedBox(height: 8),
+                  ],
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: [
-              if (group.infoPage?.isNotEmpty ?? false)
-                FilledButton.tonalIcon(
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 12,
-                    ),
-                  ),
-                  onPressed: () => launchUrlString(group.infoPage!),
-                  icon: const Icon(Icons.open_in_new_rounded),
-                  label: const Text('Подробнее'),
-                ),
-              if (phone != null)
-                OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 12,
-                    ),
-                  ),
-                  onPressed: () => launchUrlString(
-                    'tel:${phone.replaceAll(RegExp(r'[^0-9+]'), '')}',
-                  ),
-                  icon: const Icon(Icons.call_rounded),
-                  label: const Text('Позвонить'),
-                ),
-            ],
           ),
         ],
       ),
