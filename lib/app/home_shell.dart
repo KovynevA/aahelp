@@ -276,7 +276,7 @@ class _ShellHeader extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: 18,
-        vertical: isCompact ? 14 : 18,
+        vertical: isCompact ? 12 : 16,
       ),
       decoration: BoxDecoration(
         color: palette.surface.withValues(alpha: 0.88),
@@ -306,7 +306,7 @@ class _ShellHeader extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.headlineMedium?.copyWith(
-                    fontSize: isCompact ? 20 : null,
+                    fontSize: isCompact ? 16 : null,
                   ),
                 ),
                 if (showSubtitle) ...[
