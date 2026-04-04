@@ -3,8 +3,9 @@ import 'package:aahelp/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await AppThemeController.instance.load();
   runApp(const MyApp());
 }
 

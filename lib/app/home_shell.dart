@@ -36,7 +36,7 @@ extension HomeSectionPresentation on HomeSection {
       case HomeSection.groups:
         return 'Карта';
       case HomeSection.diary:
-        return 'Дневник';
+        return 'ЕР';
       case HomeSection.principles:
         return '12х12';
       case HomeSection.sobriety:
@@ -51,13 +51,28 @@ extension HomeSectionPresentation on HomeSection {
       case HomeSection.groups:
         return 'Карта';
       case HomeSection.diary:
-        return 'Дневник';
+        return 'ЕР';
       case HomeSection.principles:
         return '12х12';
       case HomeSection.sobriety:
         return 'Трезвость';
       case HomeSection.settings:
         return 'Ещё';
+    }
+  }
+
+  String get menuLabel {
+    switch (this) {
+      case HomeSection.groups:
+        return 'Группы АА';
+      case HomeSection.diary:
+        return 'ЕР';
+      case HomeSection.principles:
+        return '12 шагов и традиций';
+      case HomeSection.sobriety:
+        return 'Моя трезвость';
+      case HomeSection.settings:
+        return 'Настройки';
     }
   }
 
@@ -419,7 +434,7 @@ class _SidebarContent extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                section.title,
+                                section.menuLabel,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: theme.textTheme.labelLarge,

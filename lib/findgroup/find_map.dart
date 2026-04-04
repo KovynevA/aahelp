@@ -6,6 +6,7 @@ import 'package:aahelp/findgroup/platform_group_map.dart';
 import 'package:aahelp/helper/stylemenu.dart';
 import 'package:aahelp/helper/utils.dart';
 import 'package:aahelp/theme/app_theme.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -177,8 +178,8 @@ class _FindMapWidgetState extends State<FindMapWidget> {
         final bottomPanelHeight = selectedGroup == null
             ? 0.0
             : math.min(
-                isCompact ? 330.0 : 370.0,
-                constraints.maxHeight * (isCompact ? 0.44 : 0.46),
+                isCompact ? 440.0 : 520.0,
+                constraints.maxHeight * (isCompact ? 0.62 : 0.68),
               ).toDouble();
         final topOverlayWidth = isWide
             ? math.min(470.0, constraints.maxWidth * 0.42).toDouble()
@@ -251,9 +252,10 @@ class _FindMapWidgetState extends State<FindMapWidget> {
                     right: sideInset,
                     bottom: sideInset,
                     child: SizedBox(
-                      width: 360,
+                      width: 396,
                       child: _SelectedGroupPanel(
                         group: selectedGroup,
+                        currentPosition: _currentPosition,
                         onClose: () {
                           setState(() {
                             selectedGroupId = null;
@@ -271,6 +273,7 @@ class _FindMapWidgetState extends State<FindMapWidget> {
                       height: bottomPanelHeight,
                       child: _SelectedGroupPanel(
                         group: selectedGroup,
+                        currentPosition: _currentPosition,
                         onClose: () {
                           setState(() {
                             selectedGroupId = null;
@@ -982,20 +985,86 @@ class _MapActionPanel extends StatelessWidget {
   }
 }
 
+enum RouteMode {
+  driving,
+  transit,
+  walking,
+}
+
+extension RouteModePresentation on RouteMode {
+  String get label {
+    switch (this) {
+      case RouteMode.driving:
+        return 'Авто';
+      case RouteMode.transit:
+        return 'Транспорт';
+      case RouteMode.walking:
+        return 'Пешком';
+    }
+  }
+
+  IconData get icon {
+    switch (this) {
+      case RouteMode.driving:
+        return Icons.directions_car_rounded;
+      case RouteMode.transit:
+        return Icons.directions_bus_rounded;
+      case RouteMode.walking:
+        return Icons.directions_walk_rounded;
+    }
+  }
+
+  String get yandexRouteType {
+    switch (this) {
+      case RouteMode.driving:
+        return 'auto';
+      case RouteMode.transit:
+        return 'mt';
+      case RouteMode.walking:
+        return 'pd';
+    }
+  }
+}
+
 class _SelectedGroupPanel extends StatelessWidget {
   const _SelectedGroupPanel({
     required this.group,
+    required this.currentPosition,
     required this.onClose,
   });
 
   final GroupsAA group;
+  final Position? currentPosition;
   final VoidCallback onClose;
+
+  String? _buildYandexRouteUrl(RouteMode mode) {
+    final destination = pointForGroup(group);
+    final origin = currentPosition;
+    if (destination == null || origin == null) {
+      return null;
+    }
+
+    return Uri.https(
+      'yandex.ru',
+      '/maps/',
+      <String, String>{
+        'mode': 'routes',
+        'rtext':
+            '${origin.latitude},${origin.longitude}~${destination.latitude},${destination.longitude}',
+        'rtt': mode.yandexRouteType,
+        'll': '${destination.longitude},${destination.latitude}',
+        'z': '15',
+      },
+    ).toString();
+  }
 
   @override
   Widget build(BuildContext context) {
     final groupSearchService = GroupSearchService();
     final palette = context.appPalette;
     final isCompact = MediaQuery.sizeOf(context).width < 640;
+    final canBuildRoute =
+        currentPosition != null && pointForGroup(group) != null;
     final phone =
         group.phone?.isNotEmpty ?? false ? group.phone!.first.number : null;
 
@@ -1061,7 +1130,46 @@ class _SelectedGroupPanel extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
+          Text(
+            'Маршрут',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: RouteMode.values.map((mode) {
+              final routeUrl = _buildYandexRouteUrl(mode);
+              return FilledButton.tonalIcon(
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 11,
+                  ),
+                ),
+                onPressed: routeUrl == null
+                    ? null
+                    : () => launchUrlString(
+                          routeUrl,
+                          mode: kIsWeb
+                              ? LaunchMode.platformDefault
+                              : LaunchMode.externalApplication,
+                        ),
+                icon: Icon(mode.icon),
+                label: Text(mode.label),
+              );
+            }).toList(),
+          ),
+          if (!canBuildRoute)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                'Для построения маршрута нужно разрешить доступ к геопозиции.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+          const SizedBox(height: 12),
           Expanded(
             child: SingleChildScrollView(
               child: Column(
@@ -1106,7 +1214,7 @@ class _SelectedGroupPanel extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Wrap(
             spacing: 10,
             runSpacing: 10,

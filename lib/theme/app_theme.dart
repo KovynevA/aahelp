@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 enum AppThemePreset {
   breeze,
@@ -35,11 +38,30 @@ class AppThemeController extends ValueNotifier<AppThemePreset> {
   AppThemeController._() : super(AppThemePreset.breeze);
 
   static final AppThemeController instance = AppThemeController._();
+  static const String _storageKey = 'aahelp.theme_preset';
+  final SharedPreferencesAsync _preferences = SharedPreferencesAsync();
+
+  Future<void> load() async {
+    final savedPresetName = await _preferences.getString(_storageKey);
+    if (savedPresetName == null) {
+      return;
+    }
+
+    for (final preset in AppThemePreset.values) {
+      if (preset.name == savedPresetName) {
+        if (value != preset) {
+          value = preset;
+        }
+        return;
+      }
+    }
+  }
 
   void setPreset(AppThemePreset preset) {
     if (value != preset) {
       value = preset;
     }
+    unawaited(_preferences.setString(_storageKey, preset.name));
   }
 }
 
