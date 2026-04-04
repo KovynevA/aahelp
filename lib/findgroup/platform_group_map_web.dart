@@ -38,7 +38,7 @@ class _PlatformGroupMapState extends State<PlatformGroupMap> {
   static int _mapCounter = 0;
 
   final String _apiKey = _normalizeApiKey(
-    const String.fromEnvironment('YANDEX_WEB_API_KEY'),
+    const String.fromEnvironment('yandex_web_api_key'),
   );
   late final String _viewType = 'aahelp-yandex-web-map-${_mapCounter++}';
   late final String _containerId =
@@ -208,7 +208,7 @@ class _PlatformGroupMapState extends State<PlatformGroupMap> {
             padding: EdgeInsets.all(24),
             child: Text(
               'Для web/PWA не задан Yandex JS API key.\n'
-              'Передайте --dart-define=YANDEX_WEB_API_KEY=...',
+              'Передайте --dart-define=yandex_web_api_key=...',
               textAlign: TextAlign.center,
             ),
           ),
