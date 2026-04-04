@@ -54,6 +54,7 @@ class _PlatformGroupMapState extends State<PlatformGroupMap> {
   StreamSubscription<html.CustomEvent>? _groupTapSubscription;
   bool _mapReady = false;
   int? _lastCameraToken;
+  String? _loadError;
 
   @override
   void initState() {
@@ -109,19 +110,41 @@ class _PlatformGroupMapState extends State<PlatformGroupMap> {
       return;
     }
 
-    final created = await _interop.callMethodVarArgs<JSPromise<JSBoolean>>(
-      'create'.toJS,
-      <JSAny?>[
-        _containerId.toJS,
-        _apiKey.toJS,
-        jsonEncode(_buildState()).toJS,
-      ],
-    ).toDart;
+    try {
+      final created = await _interop.callMethodVarArgs<JSPromise<JSBoolean>>(
+        'create'.toJS,
+        <JSAny?>[
+          _containerId.toJS,
+          _apiKey.toJS,
+          jsonEncode(_buildState()).toJS,
+        ],
+      ).toDart;
 
-    if (!mounted || !created.toDart) {
+      if (!mounted) {
+        return;
+      }
+
+      if (!created.toDart) {
+        setState(() {
+          _loadError = _buildMapErrorMessage(
+            'Не удалось инициализировать Yandex Maps в web-сборке.',
+          );
+        });
+        return;
+      }
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _loadError = _buildMapErrorMessage(error.toString());
+      });
       return;
     }
 
+    setState(() {
+      _loadError = null;
+    });
     _mapReady = true;
     await _applyCameraRequest(forceDefaultCenter: true);
   }
@@ -131,15 +154,24 @@ class _PlatformGroupMapState extends State<PlatformGroupMap> {
       return;
     }
 
-    await _interop.callMethodVarArgs<JSPromise<JSAny?>>(
-      'update'.toJS,
-      <JSAny?>[
-        _containerId.toJS,
-        jsonEncode(_buildState()).toJS,
-      ],
-    ).toDart;
+    try {
+      await _interop.callMethodVarArgs<JSPromise<JSAny?>>(
+        'update'.toJS,
+        <JSAny?>[
+          _containerId.toJS,
+          jsonEncode(_buildState()).toJS,
+        ],
+      ).toDart;
 
-    await _applyCameraRequest();
+      await _applyCameraRequest();
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _loadError = _buildMapErrorMessage(error.toString());
+      });
+    }
   }
 
   Future<void> _applyCameraRequest({bool forceDefaultCenter = false}) async {
@@ -198,6 +230,19 @@ class _PlatformGroupMapState extends State<PlatformGroupMap> {
     };
   }
 
+  String _buildMapErrorMessage(String rawError) {
+    final host = html.window.location.origin;
+    final message = rawError.trim();
+    return 'Не удалось загрузить карту Yandex в web/PWA.\n'
+        'Текущий домен: $host\n'
+        'Проверьте:\n'
+        '1. В Codemagic задан YANDEX_WEB_API_KEY\n'
+        '2. Build arguments содержат --dart-define=YANDEX_WEB_API_KEY=\$YANDEX_WEB_API_KEY\n'
+        '3. Для JS API key в кабинете Яндекса разрешён HTTP Referer этого домена\n'
+        '4. После изменения ключа вы обновили страницу без старого service worker cache\n'
+        'Техническая ошибка: $message';
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_apiKey.isEmpty) {
@@ -209,6 +254,21 @@ class _PlatformGroupMapState extends State<PlatformGroupMap> {
             child: Text(
               'Для web/PWA не задан Yandex JS API key.\n'
               'Передайте --dart-define=YANDEX_WEB_API_KEY=...',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (_loadError != null) {
+      return ColoredBox(
+        color: Colors.white,
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(
+              _loadError!,
               textAlign: TextAlign.center,
             ),
           ),
