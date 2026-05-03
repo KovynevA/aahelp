@@ -1,11 +1,9 @@
-import 'dart:io';
-
 import 'package:aahelp/helper/stylemenu.dart';
 import 'package:aahelp/helper/utils.dart';
 import 'package:aahelp/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MySobriety extends StatelessWidget {
   const MySobriety({super.key});
@@ -34,26 +32,18 @@ class _MySobrietyWidgetState extends State<MySobrietyWidget> {
     getUser();
   }
 
-  Future<String> get _localPath async {
-    final directory = await getApplicationDocumentsDirectory();
-    return directory.path;
-  }
-
-  Future<File> get _localFile async {
-    final path = await _localPath;
-    return File('$path/date.txt');
-  }
+  static const String _storageKey = 'aahelp.sobriety_date';
+  final SharedPreferencesAsync _prefs = SharedPreferencesAsync();
 
   Future<void> _saveDateToFile(DateTime date) async {
-    final file = await _localFile;
-    await file.writeAsString(date.toString());
+    await _prefs.setString(_storageKey, date.toIso8601String());
   }
 
   Future<DateTime?> _loadDateFromFile() async {
     try {
-      final file = await _localFile;
-      final contents = await file.readAsString();
-      return DateTime.parse(contents);
+      final dateStr = await _prefs.getString(_storageKey);
+      if (dateStr == null) return null;
+      return DateTime.parse(dateStr);
     } catch (_) {
       return null;
     }
@@ -374,7 +364,8 @@ class _MySobrietyWidgetState extends State<MySobrietyWidget> {
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.celebration_rounded, color: palette.accent),
+                            Icon(Icons.celebration_rounded,
+                                color: palette.accent),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
